@@ -44,7 +44,7 @@ const Video = () => {
       const searchRes = await axios.get(`${BASE_URL}/search`, {
         params: {
           part: "snippet",
-          maxResults: 1,
+          maxResults: 10,
           chart: "mostPopular",
           type: "video",
           key: API_KEY,
@@ -331,7 +331,7 @@ const Video = () => {
           </div>
           {videos.map((video) => (
             <div key={video.id}>
-              <div className="grid grid-cols-1 lg:grid-cols-2 items-center justify-center gap-2 lg:gap-0">
+              <div className="grid grid-cols-1 lg:grid-cols-2 items-center justify-center gap-2 lg:gap-0 h-19 overflow-hidden">
                 <div className="w-full aspect-video lg:w-39  rounded-md overflow-hidden ">
                   <img
                     className="w-full h-full object-cover rounded-xl"
@@ -339,12 +339,12 @@ const Video = () => {
                     alt="video thumbnail"
                   />
                 </div>
-                <div className="flex flex-col gap-1 text-xs ">
-                  <div className="font-bold">{video.snippet.title}</div>
-                  <div>{video.snippet.channelTitle}</div>
+                <div className="flex flex-col text-xs overflow-hidden">
+                  <div className="overflow-hidden flex items-center h-12">{video.snippet.title}</div>
+                  <div className="text-[#afabab]">{video.snippet.channelTitle}</div>
                   <div className="flex gap-2 text-[#afabab]">
                     <div className="flex">
-                      <div className="mr-1">views • </div>
+                      <div className="">views • </div>
                       {millify(video?.statistics?.viewCount)}
                     </div>
                     <div>

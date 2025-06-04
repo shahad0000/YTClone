@@ -32,7 +32,7 @@ const Home = () => {
       const res = await axios.get(`${BASE_URL}/videos`, {
         params: {
           part: "snippet,statistics",
-          maxResults: 1,
+          maxResults: 12,
           chart: "mostPopular",
           type: "video",
           key: API_KEY,
