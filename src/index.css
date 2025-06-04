@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+.bg-primary {
+    background-color: #0f0f0f;
+}
+
+.bg-secondary {
+background-color: #333333;
+}
+
+.gray-btn {
+    @apply bg-[#333333] hover:bg-[#4e4e4e]; 
+}
