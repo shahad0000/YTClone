@@ -3,7 +3,6 @@ import millify from "millify";
 import { formatDistanceToNow } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import Navbar from "../components/Navbar";
 import { AiOutlineLike } from "react-icons/ai";
 import { GrDislike } from "react-icons/gr";
 import { RiShareForwardLine } from "react-icons/ri";
@@ -16,11 +15,20 @@ const BASE_URL = "https://www.googleapis.com/youtube/v3";
 const Video = () => {
   const { id } = useParams();
   const [videos, setVideos] = useState([]);
+  const [addCom, setAddCom] = useState({
+    username: localStorage.getItem("username") || "",
+    content: "",
+    videoId: id,
+  });
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    localStorage.getItem("loggedIn") === "true"
+  );
   const [playingVideo, setPlayingVideo] = useState({
     snippet: {},
     statistics: {},
   });
   const [comments, setComments] = useState([]);
+  const [addedCom, setAddedCom] = useState([]);
   const [channel, setChannel] = useState({
     snippet: { thumbnails: { high: {} } },
     statistics: {},
@@ -48,6 +56,31 @@ const Video = () => {
         },
       });
       if (videosRes.data.items.length > 0) setVideos(videosRes.data.items);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const postCom = async (e) => {
+    e.preventDefault();
+    try {
+      const postRes = await axios.post(
+        "https://683c2ef028a0b0f2fdc66973.mockapi.io/comments",
+        addCom
+      );
+      setAddedCom((prev) => [postRes, ...prev]);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const getCom = async () => {
+    try {
+      const getRes = await axios.get(
+        "https://683c2ef028a0b0f2fdc66973.mockapi.io/comments"
+      );
+      const comment = getRes.data.filter((c) => c.videoId === id);
+      setAddedCom(comment);
+      console.log(comment);
     } catch (err) {
       console.error(err);
     }
@@ -106,6 +139,7 @@ const Video = () => {
     getRecoms();
     getVideo();
     getComments();
+    getCom();
   }, [id]);
 
   return (
@@ -202,29 +236,69 @@ const Video = () => {
           </div>
           <div className="mt-3">
             <div className="text-3xl font-bold">
-              {" "}
               {millify(playingVideo.statistics.commentCount)} Comments
             </div>
             <div>
-              <input
-                type="text"
-                placeholder="Add comment...."
-                className="border-b-1 border-gray-300 w-full m-8"
-              />
+              {isLoggedIn && (
+                <form onSubmit={postCom} className="flex">
+                  <input
+                    type="text"
+                    value={addCom.content}
+                    onChange={(e) =>
+                      setAddCom((prev) => ({
+                        ...prev,
+                        content: e.target.value,
+                      }))
+                    }
+                    placeholder="Add comment...."
+                    className="border-b-1 border-gray-300 w-full m-8"
+                  />
+                  <button className="bg-white text-black px-3 py-2 items-baseline rounded-3xl h-fit">
+                    Comment
+                  </button>
+                </form>
+              )}
             </div>
             <div className="flex flex-col gap-5">
+              {addedCom.map((com) => (
+                <div key={com.id}>
+                  <div className="flex gap-4">
+                    <div className="w-12 h-12 flex items-center justify-center text-2xl bg-green-700 text-white rounded-full">
+                      {com.username[0]}
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="font-bold text-white w-fit rounded-3xl">
+                        {com.username}
+                      </div>
+                      <div className="text-sm">
+                        {com.content}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
               {comments.map((com) => (
                 <div key={com.id}>
                   <div className="flex gap-4">
-                    <div><img className="rounded-full" src={com.snippet.topLevelComment.snippet.authorProfileImageUrl} alt="" /></div>
-                    <div className="flex flex-col">
-                    <div className="font-bold text-white w-fit rounded-3xl">           
-                      {com.snippet.topLevelComment.snippet.authorDisplayName}
+                    <div>
+                      <img
+                        className="rounded-full"
+                        src={
+                          com.snippet.topLevelComment.snippet
+                            .authorProfileImageUrl
+                        }
+                        alt=""
+                      />
                     </div>
-                    <div className="text-sm">{com.snippet.topLevelComment.snippet.textDisplay}</div>
+                    <div className="flex flex-col">
+                      <div className="font-bold text-white w-fit rounded-3xl">
+                        {com.snippet.topLevelComment.snippet.authorDisplayName}
+                      </div>
+                      <div className="text-sm">
+                        {com.snippet.topLevelComment.snippet.textDisplay}
+                      </div>
+                    </div>
                   </div>
-                  </div>
-              
                 </div>
               ))}
             </div>
