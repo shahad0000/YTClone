@@ -8,12 +8,17 @@ import { GrDislike } from "react-icons/gr";
 import { RiShareForwardLine } from "react-icons/ri";
 import { RiDownloadLine } from "react-icons/ri";
 import { FaRegBookmark } from "react-icons/fa";
+import { AiFillLike } from "react-icons/ai";
+import { AiFillDislike } from "react-icons/ai";
+import { AiOutlineDislike } from "react-icons/ai";
 
 const API_KEY = "AIzaSyBM8EqTfxpbMKiudVnazUrOT7tgpl8Ri6A";
 const BASE_URL = "https://www.googleapis.com/youtube/v3";
 
 const Video = () => {
   const { id } = useParams();
+  const [isLiked, setIsLiked] = useState(false);
+  const [isDisLiked, setIsDisLiked] = useState(false);
   const [videos, setVideos] = useState([]);
   const [addCom, setAddCom] = useState({
     username: localStorage.getItem("username") || "",
@@ -189,15 +194,28 @@ const Video = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="bg-secondary w-fit p-1 px-4 rounded-3xl flex items-center gap-1">
-                    <span>
-                      <AiOutlineLike />
-                    </span>
-                    {millify(playingVideo.statistics.likeCount)}
-                  </div>
-                  <div className="bg-secondary w-fit p-2 px-4 rounded-3xl flex items-center gap-1">
-                    <GrDislike />
-                  </div>
+                  <button
+                    onClick={() => setIsLiked(!isLiked)}
+                    className="bg-secondary w-fit p-1 px-4 rounded-3xl flex items-center gap-1 cursor-pointer"
+                  >
+                    {isLiked ? (
+                      <span className="flex gap-2 items-center">
+                        <AiFillLike className="text-xl" />
+                        {millify(Number(playingVideo.statistics.likeCount) + 1)}
+                      </span>
+                    ) : (
+                      <span className="flex gap-2 items-center">
+                        <AiOutlineLike className="text-xl" />
+                        {millify(playingVideo.statistics.likeCount)}
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setIsDisLiked(!isDisLiked)}
+                    className="bg-secondary w-fit p-1.5 px-4 rounded-3xl text-xl flex items-center gap-1 cursor-pointer"
+                  >
+                    {isDisLiked ? <AiOutlineDislike /> : <AiFillDislike />}
+                  </button>
                   <div className="bg-secondary w-fit p-1 px-4 rounded-3xl flex items-center gap-1">
                     <RiShareForwardLine />
                     <span>Share</span>
@@ -270,9 +288,7 @@ const Video = () => {
                       <div className="font-bold text-white w-fit rounded-3xl">
                         {com.username}
                       </div>
-                      <div className="text-sm">
-                        {com.content}
-                      </div>
+                      <div className="text-sm">{com.content}</div>
                     </div>
                   </div>
                 </div>
